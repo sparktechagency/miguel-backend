@@ -15,11 +15,10 @@ class DatabaseSeeder extends Seeder
                 'first_name' => 'Admin',
                 'last_name' => 'User',
                 'email' => 'admin@gmail.com',
-                'password' => bcrypt('password'),
+                'password' => bcrypt('Password@123'),
                 'role' => 'ADMIN',
                 'is_banned' => false,
-                'verify_email' => true,
-                'otp_verified_at' => true,
+                'otp_verified_at' => now(),
             ]
         );
         User::updateOrCreate(
@@ -27,11 +26,10 @@ class DatabaseSeeder extends Seeder
                 'first_name' => 'Regular',
                 'last_name' => 'User',
                 'email' => 'user@gmail.com',
-                'password' => bcrypt('password'),
+                'password' => bcrypt('Password@123'),
                 'role' => 'USER',
                 'is_banned' => false,
-                'verify_email' => true,
-                'otp_verified_at' => true,
+                'otp_verified_at' => now(),
             ]
         );
     }

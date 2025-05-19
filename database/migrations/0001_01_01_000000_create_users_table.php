@@ -14,18 +14,17 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('first_name',255);
-            $table->string('last_name',255);
+            $table->string('last_name',255)->nullable();
             $table->string('email',255)->unique();
             $table->string('password',255);
             $table->string('contact',255)->nullable();
             $table->string('location',255)->nullable();
-            $table->string('image')->default('deafult/user.png');
+            $table->string('avatar')->default('default/user.png');
             $table->enum('role', ['ADMIN','USER'])->default('USER');
             $table->boolean('is_banned')->default(false);
-            $table->boolean('verify_email')->default(false);
             $table->string('otp')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
-            $table->boolean('otp_verified_at')->default(false);
+            $table->timestamp('otp_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
