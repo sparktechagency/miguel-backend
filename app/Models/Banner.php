@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Genre extends Model
+class Banner extends Model
 {
     protected $fillable=[
-        'name'
+        'thumbnail',
+        'description'
     ];
 }

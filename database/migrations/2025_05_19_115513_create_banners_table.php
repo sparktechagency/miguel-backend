@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('artists', function (Blueprint $table) {
+        Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('name',255);
-            $table->text('description')->nullable();
-            $table->string('profile',255)->default('default/user.png');
-            $table->enum('gender',['male','female','other'])->default('other');
+            $table->string('thumbnail');
+            $table->text('description');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('artists');
+        Schema::dropIfExists('banners');
     }
 };
