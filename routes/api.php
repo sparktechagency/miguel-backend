@@ -4,9 +4,16 @@ use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SongController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
-use GuzzleHttp\Middleware;
-use Illuminate\Http\Request;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['controller' => AuthController::class], function () {
@@ -21,7 +28,31 @@ Route::group(['controller' => AuthController::class], function () {
         Route::get('profile', 'profile');
     });
 });
+Route::controller(ContactController::class)->group(function () {
+    Route::post('contact', 'contact');
+});
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware('user')->controller(WishlistController::class)->group(function () {
+        Route::get('wishlist', 'wishlist');
+        Route::post('create-wishlist/{artistId}', 'createWishlist');
+        Route::post('remove-wishlist/{artistId}', 'removeWishlist');
+    });
+    Route::middleware('user')->controller(FollowController::class)->group(function () {
+        Route::post('follow/{artistId}', 'createFollow');
+        Route::get('follow', 'follow');
+        Route::patch('unfollow/{artistId}', 'unfollow');
+    });
+    Route::middleware('user')->controller(SupportController::class)->group(function () {
+        Route::post('support', 'support');
+    });
+    Route::middleware('user')->controller(PaymentController::class)->group(function () {
+        Route::post('create-payment-intent', 'createPaymentIntent');
+    });
+
+    /* ---------------------------------- admin ------------------------------*/
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('dashboard', 'dashboard')->middleware('admin');
+    });
     Route::controller(BannerController::class)->group(function () {
         Route::get('banner', 'banner')->middleware('user');
         Route::post('create-banner', 'createBanner')->middleware('admin');
@@ -58,8 +89,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::controller(ArtistController::class)->group(function () {
         Route::get('artist', 'artist')->Middleware('user');
+        Route::get('artist-detail/{artistId}', 'artistDetail')->Middleware('user');
+
         Route::post('create-artist', 'createArtist')->Middleware('admin');
-        Route::put('update-artist', 'updateArtist')->Middleware('admin');
+        Route::put('update-artist/{artistId}', 'updateArtist')->Middleware('admin');
         Route::delete('delete-artist/{artistId}', 'deleteArtist')->Middleware('admin');
+    });
+    Route::controller(SongController::class)->group(function () {
+        Route::get('song', 'song')->Middleware('user');
+        Route::get('publish-song', 'publishSong')->Middleware('user');
+        Route::get('latest-trending', 'latestTrending')->Middleware('user');
+
+        Route::post('create-song', 'createSong')->Middleware('admin');
+        Route::put('update-song/{songId}', 'updateSong')->Middleware('admin');
+        Route::patch('published/{songId}', 'published')->Middleware('admin');
+        Route::delete('delete-song/{songId}', 'deleteSong')->Middleware('admin');
+    });
+    Route::controller(TransactionController::class)->group(function () {
+        Route::get('transactions', 'transactions')->Middleware('admin');
+    });
+    Route::controller(OrderController::class)->group(function () {
+        Route::get('orders', 'orders')->middleware('admin');
+        Route::post('create-order', 'createOrder')->middleware('user');
     });
 });

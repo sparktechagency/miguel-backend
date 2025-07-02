@@ -21,7 +21,7 @@ class UserController extends Controller
                         ->where('last_name','like','%'.$search. '%')
                       ->orWhere('email', 'like', '%' . $search . '%');
                 });
-            })->get();
+            })->orderBy('id','desc')->paginate($userRequest->per_page ?? 10);
 
             return $this->sendResponse($users, 'Users fetched successfully');
         } catch (Exception $e) {

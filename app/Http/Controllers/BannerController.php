@@ -19,7 +19,6 @@ class BannerController extends Controller
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-
     public function createBanner(CreateBannerRequest $request)
     {
         try {

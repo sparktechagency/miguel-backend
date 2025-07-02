@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
+            $table->string('song_poster');
             $table->string('song');
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
-            $table->foreignId('bpm_id')->constrained('b_p_m_s')->onDelete('cascade');
             $table->foreignId('key_id')->constrained()->onDelete('cascade');
             $table->foreignId('license_id')->constrained()->onDelete('cascade');
             $table->foreignId('type_id')->constrained()->onDelete('cascade');
             $table->enum('gender', ['male', 'female', 'other']);
+            $table->integer('bpm')->default(0);
             $table->decimal('price', 10, 2)->default(0.00);
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_published')->default(true);
             $table->timestamps();
 
             $table->index('gender');

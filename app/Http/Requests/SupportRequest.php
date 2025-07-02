@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BPMRequest extends FormRequest
+class SupportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,8 @@ class BPMRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => 'required|integer|unique:b_p_m_s,id',
+            'title' =>'required|string|max:255',
+            'message'=> 'required|string'
         ];
     }
 }

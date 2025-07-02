@@ -51,14 +51,24 @@ class CategoryController extends Controller
             $this->sendError("An error occurred: ".$e->getMessage(),[],500);
         }
     }
-    public function createBpm(BPMRequest $BPMRequest) {
-        try{
-            $bpm = BPM::create($BPMRequest->validated());
-            return $this->sendResponse($bpm,"BPM create successfully.");
-        }catch(Exception $e){
-            $this->sendError("An error occurred: ".$e->getMessage(),[],500);
+    public function createBpm(BPMRequest $BPMRequest)
+    {
+        try {
+            $validated = $BPMRequest->validated();
+            $bpm = BPM::first();
+            if ($bpm) {
+                $bpm->value = $validated['value'];
+                $bpm->save();
+            } else {
+                BPM::create($validated);
+            }
+
+            return $this->sendResponse([],"BPM created or updated successfully.");
+        } catch (Exception $e) {
+            return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
+
     public function deleteBpm($bpmId) {
         try{
            $bpm = BPM::findOrFail($bpmId);

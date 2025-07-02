@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class BPM extends Model
 {
     protected $fillable=[
-        'name'
+        'value'
     ];
 }
