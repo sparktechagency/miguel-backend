@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->string('payment_intent_id')->nullable(); // Stripe or other gateway ID
+            $table->decimal('amount', 10, 2);
+            $table->string('currency')->default('USD');
+            $table->enum('status',['pending','success','failed'])->default('pending');
+            $table->string('payment_method')->nullable(); // stripe, paypal, etc.
             $table->timestamps();
         });
     }

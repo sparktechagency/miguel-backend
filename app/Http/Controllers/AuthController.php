@@ -80,7 +80,9 @@ class AuthController extends Controller
                 return $this->sendError("User not found.");
             }
             $this->otpSend($user);
-            return $this->sendResponse($user, "OTP sent successfully.");
+            $data = User::where('email', $validated['email'])->first();
+
+            return $this->sendResponse($data, "OTP sent successfully.");
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
