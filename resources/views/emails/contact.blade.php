@@ -83,8 +83,8 @@
 
         <div class="email-body">
             <div class="info-block">
-                <div class="info-label">Name</div>
-                <div class="info-value">{{ $contact['name'] }}</div>
+                <div class="info-label">Title</div>
+                <div class="info-value">{{ $contact['title'] }}</div>
             </div>
 
             <div class="info-block">
@@ -93,8 +93,13 @@
             </div>
 
             <div class="info-block">
-                <div class="info-label">Message</div>
-                <div class="info-value">{{ $contact['message'] }}</div>
+                <div class="info-label">Type</div>
+                <div class="info-value">{{ $contact['type'] }}</div>
+            </div>
+
+            <div class="info-block">
+                <div class="info-label">Descriptions</div>
+                <div class="info-value">{{ $contact['description'] }}</div>
             </div>
         </div>
 

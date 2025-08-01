@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password', 'contact', 'location', 'avatar', 'role',
+        'full_name', 'email', 'password', 'contact', 'location', 'avatar', 'role',
     ];
 
     protected $hidden = [
@@ -27,9 +27,6 @@ class User extends Authenticatable
         'otp_expires_at' => 'datetime',
         'otp_verified_at' => 'datetime',
     ];
-    public function getFullNameAttribute()
-    {
-        return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
-    }
+
 
 }

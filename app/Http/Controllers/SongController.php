@@ -97,7 +97,6 @@ class SongController extends Controller
             $this->sendError("An error occurred: ".$e->getMessage(),[],500);
         }
     }
-
     public function createSong(SongRequest $songRequest)
     {
         try {
@@ -189,6 +188,19 @@ class SongController extends Controller
             return $this->sendResponse($songs, "Latest trending songs retrieved successfully.");
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
+        }
+    }
+  public function songDetails($songId)
+    {
+        try {
+            $song = Song::with(['artist', 'genre', 'key', 'license', 'type'])->find($songId);
+            if(!$song){
+                return $this->sendError("Song not found.");
+            }
+            return $this->sendResponse($song, "Song details retrieved successfully.");
+
+        } catch (Exception $e) {
+            return $this->sendError("An error occurred: ". $e->getMessage(), [], 500);
         }
     }
 }

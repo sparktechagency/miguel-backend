@@ -22,6 +22,7 @@ class SongRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title'=>'required|string|min:3',
             'song' => 'required|file|mimetypes:audio/mpeg,audio/mp3|max:1024000', //1GB
             'song_poster' => 'required|image|mimes:png,jpg,jpeg,svg|max:10240', //10 MB
             'artist_id' => 'required|exists:artists,id',

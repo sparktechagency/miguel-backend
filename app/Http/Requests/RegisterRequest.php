@@ -22,8 +22,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|min:3|max:255',
-            'last_name' => 'nullable|string|max:255',
+            'full_name' => 'required|string|min:3|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => [
                 'required',
@@ -45,7 +44,7 @@ class RegisterRequest extends FormRequest
             ],
             'contact'=>'nullable|max:255|string',
             'location'=>'nullable|max:255|string',
-           
+
         ];
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SupportRequest extends FormRequest
+class ApplyforArtistRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,15 @@ class SupportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' =>'required|email|max:255',
-            'message'=> 'required|string'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'social_link' => 'nullable|string|max:1000',
+            'about' => 'nullable|string',
+            'genres' => 'required|array',
+            'genres.*' => 'string',
+            'other_genre' => 'nullable|string|max:255',
+            'file' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3|max:1024000', //1GB
+
         ];
     }
 }

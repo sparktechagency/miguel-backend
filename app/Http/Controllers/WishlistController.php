@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Artist;
+use App\Models\Song;
 use App\Models\Wishlist;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class WishlistController extends Controller
     public function wishlist(Request $request)
     {
         try {
-            $wishlist = Wishlist::with('artist')
+            $wishlist = Wishlist::with(['song','song.artist', 'song.genre', 'song.key', 'song.license', 'song.type'])
                         ->where('user_id', auth()->id())
                         ->where('is_wishlisted', true)
                         ->orderBy('id','desc')
@@ -22,67 +22,55 @@ class WishlistController extends Controller
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-    public function createWishlist($artistId)
+    public function createWishlist($songId)
     {
         try {
-            $artist = Artist::find($artistId);
-            if (!$artist) {
-                return $this->sendError("Artist not found.");
+            $song = Song::find($songId);
+            if (!$song) {
+                return $this->sendError("Song not found.");
             }
-
             $existingWishlist = Wishlist::where('user_id', auth()->id())
-                                        ->where('artist_id', $artistId)
+                                        ->where('song_id', $songId)
                                         ->where('is_wishlisted',true)
                                         ->first();
-
             if ($existingWishlist) {
-                return $this->sendError("Artist is already in your wishlist.");
+                return $this->sendError("Song is already in your wishlist.");
             }
-
             $wishlist = Wishlist::create([
                 'user_id' => auth()->id(),
-                'artist_id' => $artistId,
+                'song_id' => $songId,
                 'is_wishlisted' => true,
             ]);
-            if($artist){
-                $artist->is_wishlisted = true;
-                $artist->save();
+            if($song){
+                $song->is_wishlisted = true;
+                $song->save();
             }
             return $this->sendResponse($wishlist, "Wishlist created successfully.");
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-    public function removeWishlist($artistId)
+    public function removeWishlist($songId)
     {
         try {
-            $artist = Artist::find($artistId);
-            if (!$artist) {
-                return $this->sendError("Artist not found.");
+            $song = Song::find($songId);
+            if (!$song) {
+                return $this->sendError("Song not found.");
             }
-
             $wishlist = Wishlist::where('user_id', auth()->id())
-                                ->where('artist_id', $artistId)
+                                ->where('song_id', $songId)
                                 ->where('is_wishlisted', true)
                                 ->first();
-
             if (!$wishlist) {
-                return $this->sendError("Artist is not in the wishlist.");
+                return $this->sendError("Song is not in the wishlist.");
             }
-
-            // If artist-wide flag is needed (optional)
-            $artist->is_wishlisted = false;
-            $artist->save();
-
-            // Update user's wishlist flag
+            $song->is_wishlisted = false;
+            $song->save();
             $wishlist->is_wishlisted = false;
             $wishlist->save();
-
-            return $this->sendResponse($wishlist, "Artist removed from wishlist.");
+            return $this->sendResponse($wishlist, "Song removed from wishlist.");
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-
-
 }

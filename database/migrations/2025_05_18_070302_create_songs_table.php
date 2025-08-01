@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
             $table->string('song_poster');
             $table->string('song');
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->integer('bpm')->default(0);
             $table->decimal('price', 10, 2)->default(0.00);
             $table->boolean('is_published')->default(true);
+             $table->boolean('is_wishlisted')->default(false);
             $table->timestamps();
 
             $table->index('gender');

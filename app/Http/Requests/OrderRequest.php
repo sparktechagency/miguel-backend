@@ -22,11 +22,11 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'songs' => 'required|array',
-            'songs.*.song_id' => 'required|exists:songs,id',
-            'songs.*.price' => 'required|numeric|min:0',
+            'songs.*.song_id.required' => 'Each song must have a song ID.',
+            'songs.*.song_id.exists' => 'One or more song IDs are invalid.',
+            'songs.*.price.required' => 'Each song must have a price.',
             'payment_method' => 'required|in:card,paypal',
-            'order_status' =>'required|in:pending,completed,failed'
+            'order_status' =>'nullable|in:pending,completed,failed'
         ];
     }
 }

@@ -7,10 +7,11 @@ use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Transaction;
 use Exception;
+use Illuminate\Http\Client\Events\RequestSending;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-
 
 class OrderController extends Controller
 {
@@ -19,12 +20,11 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
                 $totalAmount = collect($orderRequest->songs)->sum('price');
-                $orderStatus = $orderRequest->order_status;
                 $order = Order::create([
                     'user_id' => auth()->id(),
                     'order_number' => strtoupper(Str::random(10)),
                     'total_amount' => $totalAmount,
-                    'status' => $orderStatus,
+                    'status' => 'completed',
                 ]);
                 foreach ($orderRequest->songs as $song) {
                     OrderDetails::create([
@@ -38,7 +38,7 @@ class OrderController extends Controller
                 $transaction = Transaction::create([
                     'order_id' => $order->id,
                     'amount' => $totalAmount,
-                    'currency' => 'GBP',
+                    'currency' => 'USD',
                     'status' => $transactionStatus ?? 'failed',
                     'payment_method' => $orderRequest->payment_method,
                 ]);
@@ -52,10 +52,34 @@ class OrderController extends Controller
             return $this->sendError('Order creation failed.', ['error' => $e->getMessage()], 500);
         }
     }
-    public function orders()
+    public function orders(Request $request)
     {
         try {
-            $orders = Order::with(['user','orderDetails','orderDetails.song','orderDetails.order','orderDetails.order.user'])->get();
+            $orders = Order::with(['user'])->orderBy('id','desc')->paginate($request->per_page ?? 10);
+            return $this->sendResponse($orders, 'Orders retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);
+        }
+    }
+    public function userOrders(Request $request)
+    {
+        try {
+            $orders = Order::with(['user'])
+                ->where('user_id',auth()->user()->id)->orderBy("id","desc")->paginate($request->per_page??10);
+            return $this->sendResponse($orders, 'Orders retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);
+        }
+    }
+    public function orderDetails(Request $request,$order_id)
+    {
+        try {
+            $order = Order::find($order_id);
+            if(!$order){
+                return $this->sendError('Order not found.');
+            }
+            $orders = OrderDetails::with(['order','user','song'])
+                ->where('order_id',$order_id)->orderBy("id","desc")->get();
             return $this->sendResponse($orders, 'Orders retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);

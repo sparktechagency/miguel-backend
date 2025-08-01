@@ -12,8 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         User::updateOrCreate(
             [
-                'first_name' => 'Admin',
-                'last_name' => 'User',
+                'full_name' => 'Admin',
                 'email' => 'admin@gmail.com',
                 'password' => bcrypt('Password@123'),
                 'role' => 'ADMIN',
@@ -23,8 +22,7 @@ class DatabaseSeeder extends Seeder
         );
         User::updateOrCreate(
             [
-                'first_name' => 'Regular',
-                'last_name' => 'User',
+                'full_name' => 'Regular',
                 'email' => 'user@gmail.com',
                 'password' => bcrypt('Password@123'),
                 'role' => 'USER',

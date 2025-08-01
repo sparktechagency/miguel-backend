@@ -66,8 +66,8 @@
 
         <div class="email-body">
             <div class="section">
-                <div class="label">Title</div>
-                <div class="value">{{ $support['title'] }}</div>
+                <div class="label">Email</div>
+                <div class="value">{{ $support['email'] }}</div>
             </div>
 
             <div class="section">
