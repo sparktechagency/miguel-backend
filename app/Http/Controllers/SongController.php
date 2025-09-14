@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SongRequest;
 use App\Models\Song;
+use App\Models\User;
+use App\Notifications\PublishSongNotification;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -159,8 +161,11 @@ class SongController extends Controller
             }
             $song->is_published = $request->is_published;
             $song->save();
-
             $message = $song->is_published ? 'Song published successfully' : 'Song unpublished successfully';
+            $users = User::where('role', 'USER')->get();
+            foreach ($users as $user) {
+                $user->notify(new PublishSongNotification($song));
+            }
             return $this->sendResponse($song, $message);
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);

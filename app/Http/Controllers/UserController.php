@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\IsBannedRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Notifications\BannedNotification;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,8 @@ class UserController extends Controller
             $user = User::findOrFail($userId);
             $user->is_banned = $validated['is_banned'];
             $user->save();
+
+            $user->notify(new BannedNotification($user));
 
             return $this->sendResponse($user, 'User banned status updated successfully');
         } catch (Exception $e) {

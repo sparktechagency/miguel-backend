@@ -28,7 +28,7 @@ class UpdateProfileRequest extends FormRequest
             // 'location' => 'nullable|string|max:255',
 
             'full_name'=>'required|string|min:3,max:255',
-            'avatar'=>'required|image|mimes:png,jpg,jpeg,svg|max:10240',// Max 10MB
+            'avatar'=>'nullable|image|mimes:png,jpg,jpeg,svg|max:10240',// Max 10MB
             'contact'  => 'required|string|max:255',
             'location' => 'required|string|max:255',
         ];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artist;
 use App\Models\Follow;
+use App\Notifications\FollowNotification;
 use Exception;
 use Illuminate\Http\Request;
 

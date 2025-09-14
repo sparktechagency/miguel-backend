@@ -24,11 +24,13 @@ class ArtistRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'profile' => 'required|image|mimes:jpg,jpeg,png|max:20480',
+            'profile' => 'nullable|image|mimes:jpg,jpeg,png|max:20480',
             'gender' => 'required|in:male,female,other',
             'singer' => 'nullable|string|max:255',
             'singer_writer' => 'nullable|string|max:255',
+            'cover_song' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3|max:1024000',
             'location' => 'nullable|string|max:255',
+            'language' => 'nullable|string|max:255',
         ];
     }
 }

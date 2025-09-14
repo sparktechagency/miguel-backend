@@ -6,6 +6,8 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Transaction;
+use App\Models\User;
+use App\Notifications\PurchageNotification;
 use Exception;
 use Illuminate\Http\Client\Events\RequestSending;
 use Illuminate\Http\Request;
@@ -17,8 +19,8 @@ class OrderController extends Controller
 {
     public function createOrder(OrderRequest $orderRequest)
     {
-        try {
-            DB::beginTransaction();
+        // try {
+            // DB::beginTransaction();
                 $totalAmount = collect($orderRequest->songs)->sum('price');
                 $order = Order::create([
                     'user_id' => auth()->id(),
@@ -42,15 +44,21 @@ class OrderController extends Controller
                     'status' => $transactionStatus ?? 'failed',
                     'payment_method' => $orderRequest->payment_method,
                 ]);
-            DB::commit();
+
+                $admin = User::where('role', 'ADMIN')->first();
+                if ($admin) {
+                    $admin->notify(new PurchageNotification($order,$admin)); // Pass the order data to the notification
+                }
+            // DB::commit();
+
             return $this->sendResponse([
                 'order' => $order,
                 'transaction' => $transaction,
             ], 'Order placed successfully.');
-        } catch (Exception $e) {
-            DB::rollBack();
-            return $this->sendError('Order creation failed.', ['error' => $e->getMessage()], 500);
-        }
+        // } catch (Exception $e) {
+        //     DB::rollBack();
+        //     return $this->sendError('Order creation failed.', ['error' => $e->getMessage()], 500);
+        // }
     }
     public function orders(Request $request)
     {
@@ -78,7 +86,7 @@ class OrderController extends Controller
             if(!$order){
                 return $this->sendError('Order not found.');
             }
-            $orders = OrderDetails::with(['order','user','song'])
+            $orders = OrderDetails::with(['order','user','song','song.artist','song.genre','song.key','song.license','song.type'])
                 ->where('order_id',$order_id)->orderBy("id","desc")->get();
             return $this->sendResponse($orders, 'Orders retrieved successfully.');
         } catch (Exception $e) {
