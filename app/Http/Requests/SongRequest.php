@@ -23,8 +23,8 @@ class SongRequest extends FormRequest
     {
         return [
             'title'=>'required|string|min:3',
-            'song' => 'required|file|mimetypes:audio/mpeg,audio/mp3|max:1024000', //1GB
-            'song_poster' => 'required|image|mimes:png,jpg,jpeg,svg|max:10240', //10 MB
+            'song' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3|max:1024000', //1GB
+            'song_poster' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:10240', //10 MB
             'artist_id' => 'required|exists:artists,id',
             'genre_id' => 'required|exists:genres,id',
             'bpm' => 'required|numeric|min:30|max:1000',

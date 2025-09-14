@@ -36,14 +36,25 @@ class ArtistController extends Controller
     public function artist(Request $request)
     {
         $search = $request->query('search');
+        $gender = $request->query('gender');
+        $language = $request->query('language');
         $perPage = $request->query('per_page', 10);
 
         $artists = Artist::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%{$search}%");
-        })->orderBy('id','desc')->paginate($perPage);
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when($gender, function ($query, $gender) {
+                $query->where('gender', $gender);
+            })
+            ->when($language, function ($query, $language) {
+                $query->where('language', $language);
+            })
+            ->latest()
+            ->paginate($perPage);
 
         return $this->sendResponse($artists, 'Artist list fetched successfully.');
     }
+
     public function createArtist(ArtistRequest $request)
     {
         try {
@@ -55,7 +66,12 @@ class ArtistController extends Controller
                 $path = $image->storeAs('uploads/artists', $imageName, 'public');
                 $data['profile'] = 'storage/' . $path;
             }
-
+            if ($request->hasFile('cover_song')) {
+                $file = $request->file('cover_song');
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('uploads/songs', $fileName, 'public');
+                $data['cover_song'] = 'storage/' . $path;
+            }
             $artist = Artist::create($data);
             return $this->sendResponse($artist, 'Artist created successfully.');
         } catch (Exception $e) {
@@ -70,7 +86,7 @@ class ArtistController extends Controller
             if(!$artist){
                 return $this->sendError("Artist not found.");
             }
-            $artist->fill($artistRequest->only(['name', 'description', 'profile', 'gender','singer','singer_writer','location','is_wishlisted','is_followed']));
+            $artist->fill($artistRequest->only(['name', 'description', 'profile', 'gender','singer','singer_writer','location','is_wishlisted','is_followed','language','cover_song']));
             if ($artistRequest->hasFile('profile')) {
                 if ($artist->profile && Storage::disk('public')->exists(str_replace('storage/', '', $artist->profile))) {
                     Storage::disk('public')->delete(str_replace('storage/', '', $artist->profile));
@@ -80,9 +96,16 @@ class ArtistController extends Controller
                 $path = $image->storeAs('uploads/artists', $imageName, 'public');
                 $artist->profile = 'storage/' . $path;
             }
-
+            if ($artistRequest->hasFile('cover_song')) {
+                    if ($artist->cover_song && Storage::disk('public')->exists(str_replace('storage/', '', $artist->cover_song))) {
+                        Storage::disk('public')->delete(str_replace('storage/', '', $artist->cover_song));
+                    }
+                    $cover_song = $artistRequest->file('cover_song');
+                    $fileName = time() . '.' . $cover_song->getClientOriginalExtension();
+                    $path = $cover_song->storeAs('uploads/cover_song', $fileName, 'public');
+                    $artist->cover_song = 'storage/' . $path;
+                }
             $artist->save();
-
             return $this->sendResponse($artist, 'Artist updated successfully.');
         } catch (Exception $e) {
             return $this->sendError("Error: " . $e->getMessage(), [], 500);

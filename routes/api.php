@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
@@ -95,8 +96,8 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::get('artist-detail/{artistId}', 'artistDetail');
 
         Route::post('create-artist', 'createArtist')->Middleware(['admin','auth:sanctum']);
-        Route::put('update-artist/{artistId}', 'updateArtist')->Middleware('admin');
-        Route::delete('delete-artist/{artistId}', 'deleteArtist')->Middleware('admin');
+        Route::put('update-artist/{artistId}', 'updateArtist')->Middleware(['admin','auth:sanctum']);
+        Route::delete('delete-artist/{artistId}', 'deleteArtist')->Middleware(['admin','auth:sanctum']);
     });
     Route::controller(SongController::class)->group(function () {
         Route::get('song', 'song');
@@ -119,3 +120,8 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::post('create-order', 'createOrder')->middleware(['user','auth:sanctum']);
     });
 
+Route::group(['middleware' => ['auth:sanctum','user'], 'controller' => NotificationController::class], function () {
+    Route::get('notifications', 'notifications');
+    Route::post('notifications-read/{id}', 'markAsRead');
+    Route::post('notifications-read-all','notificationReadAll');
+});
