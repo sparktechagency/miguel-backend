@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('artist_id')->nullable()->constrained('artists')->onDelete('set null');
+            $table->enum('order_type',['Custom','Normal'])->default('Normal');
+            $table->text('lyrics')->nullable();
             $table->string('order_number')->unique();
             $table->decimal('total_amount', 10, 2);
             $table->enum('status',['pending','completed','failed'])->default('pending');

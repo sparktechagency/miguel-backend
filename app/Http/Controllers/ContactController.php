@@ -38,7 +38,6 @@ class ContactController extends Controller
   public function applyForArtist(ApplyforArtistRequest $contactRequest)
     {
         try {
-
             $validated = $contactRequest->validated();
             if ($contactRequest->hasFile('file')) {
                 $path = $contactRequest->file('file')->store('artist_audio', 'public');

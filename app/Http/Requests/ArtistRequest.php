@@ -31,6 +31,7 @@ class ArtistRequest extends FormRequest
             'cover_song' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3|max:1024000',
             'location' => 'nullable|string|max:255',
             'language' => 'nullable|string|max:255',
+            'price' => 'nullable',
         ];
     }
 }

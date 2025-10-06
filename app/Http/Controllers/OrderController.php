@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CustomOrderRequest;
 use App\Http\Requests\OrderRequest;
+use App\Models\Artist;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Notifications\PurchageNotification;
 use Exception;
-use Illuminate\Http\Client\Events\RequestSending;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -19,8 +19,8 @@ class OrderController extends Controller
 {
     public function createOrder(OrderRequest $orderRequest)
     {
-        // try {
-            // DB::beginTransaction();
+        try {
+            DB::beginTransaction();
                 $totalAmount = collect($orderRequest->songs)->sum('price');
                 $order = Order::create([
                     'user_id' => auth()->id(),
@@ -47,18 +47,18 @@ class OrderController extends Controller
 
                 $admin = User::where('role', 'ADMIN')->first();
                 if ($admin) {
-                    $admin->notify(new PurchageNotification($order,$admin)); // Pass the order data to the notification
+                    $admin->notify(new PurchageNotification($order,$admin));
                 }
-            // DB::commit();
+            DB::commit();
 
             return $this->sendResponse([
                 'order' => $order,
                 'transaction' => $transaction,
             ], 'Order placed successfully.');
-        // } catch (Exception $e) {
-        //     DB::rollBack();
-        //     return $this->sendError('Order creation failed.', ['error' => $e->getMessage()], 500);
-        // }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Order creation failed.', ['error' => $e->getMessage()], 500);
+        }
     }
     public function orders(Request $request)
     {
@@ -72,7 +72,7 @@ class OrderController extends Controller
     public function userOrders(Request $request)
     {
         try {
-            $orders = Order::with(['user'])
+            $orders = Order::with(['user','artist'])
                 ->where('user_id',auth()->user()->id)->orderBy("id","desc")->paginate($request->per_page??10);
             return $this->sendResponse($orders, 'Orders retrieved successfully.');
         } catch (Exception $e) {
@@ -91,6 +91,39 @@ class OrderController extends Controller
             return $this->sendResponse($orders, 'Orders retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);
+        }
+    }
+    public function customOrder(CustomOrderRequest $customOrderRequest,$artist_id)
+    {
+        try{
+            $artist = Artist::find($artist_id);
+            if(!$artist){
+                return $this->sendError("Artist not found.");
+            }
+            $data = $customOrderRequest->validated();
+             $order = Order::create([
+                    'user_id' => auth()->id(),
+                    'artist_id' => $artist_id,
+                    'order_number' => strtoupper(Str::random(10)),
+                    'total_amount' => $artist->price,
+                    'order_type' => $data['order_type'] ?? 'Custom',
+                    'status' => 'completed',
+                ]);
+                $transactionStatus = $order->status === 'completed' ? 'success' : 'pending';
+                Transaction::create([
+                    'order_id' => $order->id,
+                    'amount' => $order->total_amount,
+                    'currency' => 'USD',
+                    'status' => $transactionStatus ?? 'failed',
+                    'payment_method' => $data['payment_method'],
+                ]);
+                $admin = User::where('role', 'ADMIN')->first();
+                if ($admin) {
+                    $admin->notify(new PurchageNotification($order,$admin));
+                }
+                return $this->sendResponse($order, 'Order and transaction created successfully.');
+        }catch(Exception $e){
+             return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);
         }
     }
 }

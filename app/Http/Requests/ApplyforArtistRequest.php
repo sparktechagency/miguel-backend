@@ -23,6 +23,7 @@ class ApplyforArtistRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'referral' => 'nullable|string|max:255',
             'email' => 'required|email',
             'social_link' => 'nullable|string|max:1000',
             'about' => 'nullable|string',

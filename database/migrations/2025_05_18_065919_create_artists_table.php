@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('artists', function (Blueprint $table) {
             $table->id();
             $table->string('name',255);
+            $table->string('slug',255)->unique()->index();
             $table->string('singer',255)->nullable();
             $table->string('singer_writer',255)->nullable();
             $table->string('cover_song')->nullable();
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->string('profile',255)->default('default/user.png');
             $table->enum('gender',['male','female','other'])->default('other');
             $table->string('language')->nullable();
+            $table->decimal('price',10,2)->default(0.00);
             $table->boolean('is_wishlisted')->default(false);
             $table->boolean('is_followed')->default(false);
             $table->timestamps();

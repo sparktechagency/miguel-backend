@@ -93,7 +93,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
     });
     Route::controller(ArtistController::class)->group(function () {
         Route::get('artist', 'artist');
-        Route::get('artist-detail/{artistId}', 'artistDetail');
+        Route::get('artist-detail/{slug}', 'artistDetail');
 
         Route::post('create-artist', 'createArtist')->Middleware(['admin','auth:sanctum']);
         Route::put('update-artist/{artistId}', 'updateArtist')->Middleware(['admin','auth:sanctum']);
@@ -103,7 +103,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::get('song', 'song');
         Route::get('song-details/{songId}', 'songDetails');
         Route::get('publish-song', 'publishSong');
-        Route::get('latest-trending', 'latestTrending');
+        Route::get('latest-trending/{song_id}', 'latestTrending');
 
         Route::post('create-song', 'createSong')->Middleware(['admin','auth:sanctum']);
         Route::put('update-song/{songId}', 'updateSong')->Middleware(['admin','auth:sanctum']);
@@ -118,6 +118,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::get('user-orders', 'userOrders')->middleware(['user','auth:sanctum']);
         Route::get('order-details/{order_id}', 'orderDetails')->middleware(['user','auth:sanctum']);
         Route::post('create-order', 'createOrder')->middleware(['user','auth:sanctum']);
+        Route::post('custom-order/{artist_id}', 'customOrder')->middleware(['user','auth:sanctum']);
     });
 
 Route::group(['middleware' => ['auth:sanctum','user'], 'controller' => NotificationController::class], function () {

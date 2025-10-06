@@ -25,7 +25,8 @@ return new class extends Migration
             $table->integer('bpm')->default(0);
             $table->decimal('price', 10, 2)->default(0.00);
             $table->boolean('is_published')->default(true);
-             $table->boolean('is_wishlisted')->default(false);
+            $table->boolean('is_wishlisted')->default(false);
+            $table->integer('views')->default(0);
             $table->timestamps();
 
             $table->index('gender');

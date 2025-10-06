@@ -50,7 +50,8 @@ class SongController extends Controller
                       });
                 });
             }
-            $songs = $query->orderBy('id', 'desc')->paginate($perPage);
+            $songs = $query->orderBy('views', 'desc')->paginate($perPage);
+
             return response()->json(['success' => true, 'data' => $songs]);
         } catch (Exception $e) {
             $this->sendError("An error occurred: ".$e->getMessage(),[],500);
@@ -171,7 +172,6 @@ class SongController extends Controller
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-
   public function deleteSong($songId)
     {
         try {
@@ -185,12 +185,20 @@ class SongController extends Controller
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-    public function latestTrending(Request $request)
+    public function latestTrending($song_id)
     {
         try {
-            $limit = $request->input('limit', 10);
-            $songs = Song::with(['artist', 'genre', 'key', 'license', 'type'])->where('is_published',true)->latest()->take($limit)->get();
-            return $this->sendResponse($songs, "Latest trending songs retrieved successfully.");
+            $song = Song::find($song_id);
+            if(!$song){
+                return $this->sendError("Song not found.");
+            }
+           $song->increment('views');
+            activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log("Successfully fetched song with ID: {$song_id}");
+
+             return $this->sendResponse([], 'Song activity added successfully.');
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }

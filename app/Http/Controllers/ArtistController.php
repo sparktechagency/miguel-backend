@@ -5,22 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ArtistRequest;
 use App\Models\Artist;
 use App\Models\Song;
-use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 
 class ArtistController extends Controller
 {
-    public function artistDetail($artistId)
+    public function artistDetail($slug)
     {
         try {
-            $artist = Artist::find($artistId);
+            $artist = Artist::where('slug',$slug)->first();
             if (!$artist) {
                 return $this->sendError("Artist not found.");
             }
             $songs = Song::with(['artist', 'genre', 'key', 'license', 'type'])
-                        ->where('artist_id', $artistId)
+                        ->where('artist_id', $artist->id)
                         ->orderBy('id','desc')
                         ->get();
             $artist->songs_count = $songs->count();
@@ -59,7 +60,8 @@ class ArtistController extends Controller
     {
         try {
             $data = $request->validated();
-
+            $slug = Str::slug($data['name']) . '-' . uniqid();
+            $data['slug'] = $slug;
             if ($request->hasFile('profile')) {
                 $image = $request->file('profile');
                 $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -86,7 +88,12 @@ class ArtistController extends Controller
             if(!$artist){
                 return $this->sendError("Artist not found.");
             }
-            $artist->fill($artistRequest->only(['name', 'description', 'profile', 'gender','singer','singer_writer','location','is_wishlisted','is_followed','language','cover_song']));
+            if ($artist->name !== $artistRequest->name) {
+                $slug = Str::slug($artistRequest->name) . '-' . uniqid();
+                $artistRequest->merge(['slug' => $slug]);
+            }
+            $artist->fill($artistRequest->only(
+                ['name','slug','description', 'profile', 'gender','singer','singer_writer','location','is_wishlisted','is_followed','language','cover_song','price']));
             if ($artistRequest->hasFile('profile')) {
                 if ($artist->profile && Storage::disk('public')->exists(str_replace('storage/', '', $artist->profile))) {
                     Storage::disk('public')->delete(str_replace('storage/', '', $artist->profile));

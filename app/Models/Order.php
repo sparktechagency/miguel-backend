@@ -12,6 +12,9 @@ class Order extends Model
         'order_number',
         'total_amount',
         'status',
+        'lyrics',
+        'order_type',
+        'artist_id'
     ];
     public function user()
     {
@@ -21,5 +24,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetails::class);
     }
-   
+    public function artist()
+    {
+        return $this->belongsTo(Artist::class);
+    }
+
 }
