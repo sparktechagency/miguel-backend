@@ -18,8 +18,7 @@ class UserController extends Controller
 
             $users = User::where('role','USER')->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
-                    $q->where('first_name', 'like', '%' . $search . '%')
-                        ->where('last_name','like','%'.$search. '%')
+                    $q->where('full_name', 'like', '%' . $search . '%')
                       ->orWhere('email', 'like', '%' . $search . '%');
                 });
             })->orderBy('id','desc')->paginate($userRequest->per_page ?? 10);
