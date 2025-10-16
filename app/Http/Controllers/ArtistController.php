@@ -121,7 +121,7 @@ class ArtistController extends Controller
     public function deleteArtist($artistId)
     {
         try {
-            $artist = Artist::findOrFail($artistId);
+          return   $artist = Artist::findOrFail($artistId);
             if ($artist->profile && $artist->profile !== 'default/user.png') {
                 $path = str_replace('storage/', '', $artist->profile);
                 Storage::disk('public')->delete($path);
@@ -132,5 +132,18 @@ class ArtistController extends Controller
             return $this->sendError("Error: " . $e->getMessage(), [], 500);
         }
     }
-
+    public function topArtist($artistId)
+    {
+        try {
+            $artist = Artist::findOrFail($artistId);
+            if(!$artist){
+                return $this->sendError("Artist not found.");
+            }
+            $artist->is_topartist = !$artist->is_topartist;
+            $artist->save();
+            return $this->sendResponse($artist, 'Top artist updated successfully.');
+        } catch (Exception $e) {
+            return $this->sendError("Error: " . $e->getMessage(), [], 500);
+        }
+    }
 }

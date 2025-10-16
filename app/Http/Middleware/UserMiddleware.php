@@ -19,7 +19,7 @@ class UserMiddleware
         if (Auth::user() && in_array(Auth::user()->role, ['USER', 'ADMIN'])) {
             return $next($request);
         }
-        return redirect()->route('/')->with('error', 'Access denied.');
+      return response()->json(['message' => 'Unauthorized.  Access denied.'], 403);
 
     }
 }

@@ -15,14 +15,12 @@ class UserController extends Controller
     {
         try {
             $search = $userRequest->validated()['search'] ?? null;
-
             $users = User::where('role','USER')->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('full_name', 'like', '%' . $search . '%')
                       ->orWhere('email', 'like', '%' . $search . '%');
                 });
             })->orderBy('id','desc')->paginate($userRequest->per_page ?? 10);
-
             return $this->sendResponse($users, 'Users fetched successfully');
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
@@ -43,6 +41,4 @@ class UserController extends Controller
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-
-
 }

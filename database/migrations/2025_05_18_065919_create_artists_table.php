@@ -26,6 +26,7 @@ return new class extends Migration
             $table->decimal('price',10,2)->default(0.00);
             $table->boolean('is_wishlisted')->default(false);
             $table->boolean('is_followed')->default(false);
+            $table->boolean('is_topartist')->default(false);
             $table->timestamps();
         });
     }

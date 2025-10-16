@@ -98,6 +98,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::post('create-artist', 'createArtist')->Middleware(['admin','auth:sanctum']);
         Route::put('update-artist/{artistId}', 'updateArtist')->Middleware(['admin','auth:sanctum']);
         Route::delete('delete-artist/{artistId}', 'deleteArtist')->Middleware(['admin','auth:sanctum']);
+        Route::put('top-artist/{artistId}',  'topArtist')->middleware(['admin', 'auth:sanctum']);
     });
     Route::controller(SongController::class)->group(function () {
         Route::get('song', 'song');
