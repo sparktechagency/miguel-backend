@@ -121,7 +121,7 @@ class ArtistController extends Controller
     public function deleteArtist($artistId)
     {
         try {
-          return   $artist = Artist::findOrFail($artistId);
+             $artist = Artist::findOrFail($artistId);
             if ($artist->profile && $artist->profile !== 'default/user.png') {
                 $path = str_replace('storage/', '', $artist->profile);
                 Storage::disk('public')->delete($path);

@@ -110,6 +110,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
         Route::put('update-song/{songId}', 'updateSong')->Middleware(['admin','auth:sanctum']);
         Route::patch('published/{songId}', 'published')->Middleware(['admin','auth:sanctum']);
         Route::delete('delete-song/{songId}', 'deleteSong')->Middleware(['admin','auth:sanctum']);
+        Route::put('top-song/{songId}', 'topSong')->Middleware(['admin','auth:sanctum']);
     });
     Route::controller(TransactionController::class)->group(function () {
         Route::get('transactions', 'transactions')->Middleware(['admin','auth:sanctum']);

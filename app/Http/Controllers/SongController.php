@@ -16,13 +16,15 @@ class SongController extends Controller
     {
         try {
             $perPage = $request->get('per_page', 15);
-            $query = Song::where('is_published',true)->with(['artist', 'genre', 'key', 'license', 'type']);
+            $query = Song::where('is_published', true)
+                ->with(['artist', 'genre', 'key', 'license', 'type']);
             $this->applyMultiFilter($query, 'artist_id', $request->artist_id);
             $this->applyMultiFilter($query, 'genre_id', $request->genre_id);
             $this->applyMultiFilter($query, 'key_id', $request->key_id);
             $this->applyMultiFilter($query, 'license_id', $request->license_id);
             $this->applyMultiFilter($query, 'type_id', $request->type_id);
             $this->applyMultiFilter($query, 'gender', $request->gender);
+
             if ($request->has('bpm_value')) {
                 $query->where('bpm', $request->bpm_value);
             }
@@ -31,32 +33,35 @@ class SongController extends Controller
 
                 $query->where(function ($q) use ($searchTerm) {
                     $q->orWhere('gender', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('price', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('bpm', 'like', '%' . $searchTerm . '%')
-                      ->orWhereHas('artist', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('genre', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('key', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('license', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('type', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      });
+                    ->orWhere('price', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('bpm', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('artist', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('genre', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('key', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('license', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('type', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    });
                 });
             }
-            $songs = $query->orderBy('views', 'desc')->paginate($perPage);
+            $songs = $query->orderByDesc('is_topsong')
+                        ->orderByDesc('views')
+                        ->paginate($perPage);
 
             return response()->json(['success' => true, 'data' => $songs]);
         } catch (Exception $e) {
-            $this->sendError("An error occurred: ".$e->getMessage(),[],500);
+            return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
+
     private function applyMultiFilter(&$query, $field, $value)
     {
         if (!is_null($value)) {
@@ -65,6 +70,7 @@ class SongController extends Controller
                 : $query->where($field, $value);
         }
     }
+
     public function publishSong(Request $request)
     {
         try {
@@ -214,6 +220,24 @@ class SongController extends Controller
 
         } catch (Exception $e) {
             return $this->sendError("An error occurred: ". $e->getMessage(), [], 500);
+        }
+    }
+    public function topSong($songId)
+    {
+        try {
+            $song = Song::find($songId);
+            if (!$song) {
+                return $this->sendError('Song not found.', [], 404);
+            }
+
+            $song->is_topsong = !$song->is_topsong;
+            $song->save();
+            $message = $song->is_topsong
+                ? 'Song marked as Top Song successfully.'
+                : 'Song removed from Top Songs successfully.';
+            return $this->sendResponse($song, $message);
+        } catch (Exception $e) {
+            return $this->sendError('An error occurred: ' . $e->getMessage(), [], 500);
         }
     }
 }

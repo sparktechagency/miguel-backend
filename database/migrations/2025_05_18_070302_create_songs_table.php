@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('is_published')->default(true);
             $table->boolean('is_wishlisted')->default(false);
             $table->integer('views')->default(0);
+            $table->boolean('is_topsong')->default(false);
             $table->timestamps();
 
             $table->index('gender');
