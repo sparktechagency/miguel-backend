@@ -41,7 +41,7 @@ class ArtistController extends Controller
         $language = $request->query('language');
         $perPage = $request->query('per_page', 10);
 
-        $artists = Artist::when($search, function ($query, $search) {
+        $artists = Artist::where('is_topartist',true)->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
             ->when($gender, function ($query, $gender) {
