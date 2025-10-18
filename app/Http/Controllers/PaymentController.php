@@ -13,7 +13,7 @@ class PaymentController extends Controller
     public function createPaymentIntent(CreateIntentRequest $CreateIntentRequest)
     {
         $validated = $CreateIntentRequest->validated();
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
         try {
             $paymentIntent = PaymentIntent::create([
                 'amount' => $validated['amount']*100,
