@@ -12,46 +12,43 @@ use Illuminate\Support\Facades\Storage;
 
 class SongController extends Controller
 {
-    public function song(Request $request)
+  public function song(Request $request)
     {
         try {
             $perPage = $request->get('per_page', 15);
+
             $query = Song::where('is_published', true)
                 ->with(['artist', 'genre', 'key', 'license', 'type']);
+
+            // Apply filters
             $this->applyMultiFilter($query, 'artist_id', $request->artist_id);
             $this->applyMultiFilter($query, 'genre_id', $request->genre_id);
             $this->applyMultiFilter($query, 'key_id', $request->key_id);
             $this->applyMultiFilter($query, 'license_id', $request->license_id);
             $this->applyMultiFilter($query, 'type_id', $request->type_id);
             $this->applyMultiFilter($query, 'gender', $request->gender);
+            $this->applyMultiLanguageFilter($query, 'language', $request->language);
 
             if ($request->has('bpm_value')) {
                 $query->where('bpm', $request->bpm_value);
             }
-            if ($request->has('search') && !empty($request->search)) {
+
+            // Search filter
+            if ($request->filled('search')) {
                 $searchTerm = $request->search;
 
                 $query->where(function ($q) use ($searchTerm) {
-                    $q->orWhere('gender', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('price', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('bpm', 'like', '%' . $searchTerm . '%')
-                    ->orWhereHas('artist', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', '%' . $searchTerm . '%');
-                    })
-                    ->orWhereHas('genre', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', '%' . $searchTerm . '%');
-                    })
-                    ->orWhereHas('key', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', '%' . $searchTerm . '%');
-                    })
-                    ->orWhereHas('license', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', '%' . $searchTerm . '%');
-                    })
-                    ->orWhereHas('type', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', '%' . $searchTerm . '%');
-                    });
+                    $q->where('gender', 'like', "%$searchTerm%")
+                    ->orWhere('price', 'like', "%$searchTerm%")
+                    ->orWhere('bpm', 'like', "%$searchTerm%")
+                    ->orWhereHas('artist', fn($q) => $q->where('name', 'like', "%$searchTerm%"))
+                    ->orWhereHas('genre', fn($q) => $q->where('name', 'like', "%$searchTerm%"))
+                    ->orWhereHas('key', fn($q) => $q->where('name', 'like', "%$searchTerm%"))
+                    ->orWhereHas('license', fn($q) => $q->where('name', 'like', "%$searchTerm%"))
+                    ->orWhereHas('type', fn($q) => $q->where('name', 'like', "%$searchTerm%"));
                 });
             }
+
             $songs = $query->orderByDesc('is_topsong')
                         ->orderByDesc('views')
                         ->paginate($perPage);
@@ -68,6 +65,15 @@ class SongController extends Controller
             is_array($value)
                 ? $query->whereIn($field, $value)
                 : $query->where($field, $value);
+        }
+    }
+
+    private function applyMultiLanguageFilter(&$query, $field, $value)
+    {
+        if (!empty($value)) {
+            $query->whereHas('artist', function ($q) use ($field, $value) {
+                $q->where($field, 'like', '%' . $value . '%');
+            });
         }
     }
 
