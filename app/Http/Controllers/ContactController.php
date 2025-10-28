@@ -23,7 +23,7 @@ class ContactController extends Controller
     {
         try {
             $validated = $contactRequest->validated();
-            $adminUser = User::where('role', 'admin')->first();
+            $adminUser = User::where('role', 'ADMIN')->first();
             if ($adminUser) {
                 $adminUser->notify(new ContactNotification($validated));
             } else {
@@ -43,13 +43,13 @@ class ContactController extends Controller
                 $path = $contactRequest->file('file')->store('artist_audio', 'public');
                 $validated['file'] = asset('storage/' . $path);
             }
-             $adminUser = User::where('role', 'admin')->first();
+             $adminUser = User::where('role', 'ADMIN')->first();
             if ($adminUser) {
                 $adminUser->notify(new ApplyArtistNotification($validated));
             } else {
                 return $this->sendError("Admin user not found", [], 404);
             }
-            Mail::to(env('MAIL_FROM_ADDRESS'))->queue(new ApplyforArtistMail($validated));
+            Mail::to('support@tunem.com')->queue(new ApplyforArtistMail($validated));
             return $this->sendResponse([], "Your message has been sent successfully.");
         } catch (\Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
@@ -59,7 +59,7 @@ class ContactController extends Controller
     {
         try {
             $validated = $request->validated();
-            $adminUser = User::where('role', 'admin')->first();
+            $adminUser = User::where('role', 'ADMIN')->first();
             if ($adminUser) {
                 $adminUser->notify(new SubcriptionNotification($validated));
             } else {

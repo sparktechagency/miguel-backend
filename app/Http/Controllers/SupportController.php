@@ -15,7 +15,6 @@ class SupportController extends Controller
     {
         try {
             $validated = $supportRequest->validated();
-
             Mail::to('support@tunem.com')->queue(new SupportMail($validated));
 
             $adminUser = User::where('role', 'ADMIN')->first();
