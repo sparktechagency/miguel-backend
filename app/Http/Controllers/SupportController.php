@@ -18,7 +18,7 @@ class SupportController extends Controller
 
             Mail::to('support@tunem.com')->queue(new SupportMail($validated));
 
-            $adminUser = User::where('role', 'admin')->first();
+            $adminUser = User::where('role', 'ADMIN')->first();
             if ($adminUser) {
                 $adminUser->notify(new SupportNotification($validated));
             } else {
