@@ -128,6 +128,12 @@ class SongController extends Controller
                 $path = $file->storeAs('uploads/song_posters', $fileName, 'public');
                 $validated['song_poster'] = 'storage/' . $path;
             }
+             if ($songRequest->hasFile('midi_file')) {
+                $file = $songRequest->file('midi_file');
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('uploads/midi_files', $fileName, 'public');
+                $validated['midi_file'] = 'storage/' . $path;
+            }
             $song = Song::create($validated);
             return $this->sendResponse($song,'Song created successfully.');
         } catch (Exception $e) {
@@ -159,6 +165,16 @@ class SongController extends Controller
                     Storage::disk('public')->delete(str_replace('storage/', '', $song->song_poster));
                 }
             }
+            if ($songRequest->hasFile('midi_file')) {
+                $file = $songRequest->file('midi_file');
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('uploads/midi_files', $fileName, 'public');
+                $validated['midi_file'] = 'storage/' . $path;
+
+                if($song->midi_file){
+                    Storage::disk('public')->delete(str_replace('storage/', '', $song->song_poster));
+                }
+            }
             $song->update($validated);
             return $this->sendResponse( $song, 'Song updated successfully.');
         }catch(Exception $e){
@@ -187,9 +203,15 @@ class SongController extends Controller
   public function deleteSong($songId)
     {
         try {
-            $song = Song::findOrFail($songId);
+          $song = Song::findOrFail($songId);
             if ($song->song) {
                 Storage::disk('public')->delete(str_replace('storage/', '', $song->song));
+            }
+             if ($song->song_poster) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $song->song_poster));
+            }
+             if ($song->midi_file) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $song->midi_file));
             }
             $song->delete();
             return $this->sendResponse([], 'Song deleted successfully.');

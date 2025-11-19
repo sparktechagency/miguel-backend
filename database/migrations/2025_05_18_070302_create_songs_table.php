@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('song_poster');
             $table->string('song');
+            $table->string('midi_file')->nullable();
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
             $table->foreignId('key_id')->constrained()->onDelete('cascade');
@@ -28,10 +29,9 @@ return new class extends Migration
             $table->boolean('is_wishlisted')->default(false);
             $table->integer('views')->default(0);
             $table->boolean('is_topsong')->default(false);
-            $table->timestamps();
-
             $table->index('gender');
             $table->index('is_published');
+            $table->timestamps();
         });
     }
 
