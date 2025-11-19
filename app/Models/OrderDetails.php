@@ -12,6 +12,7 @@ class OrderDetails extends Model
         'song_id',
         'price',
         'total',
+         'is_midifile'
     ];
     public function order(){
         return $this->belongsTo(Order::class);

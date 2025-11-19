@@ -34,6 +34,7 @@ class OrderController extends Controller
                         'song_id' => $song['song_id'],
                         'price' => $song['price'],
                         'total' => $totalAmount,
+                        'is_midifile' => $song['is_midifile'],
                     ]);
                 }
                 $transactionStatus = $order->status === 'completed' ? 'success' : 'pending';

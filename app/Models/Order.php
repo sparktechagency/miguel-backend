@@ -14,7 +14,8 @@ class Order extends Model
         'status',
         'lyrics',
         'order_type',
-        'artist_id'
+        'artist_id',
+       
     ];
     public function user()
     {

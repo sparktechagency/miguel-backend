@@ -25,8 +25,10 @@ class OrderRequest extends FormRequest
             'songs.*.song_id.required' => 'Each song must have a song ID.',
             'songs.*.song_id.exists' => 'One or more song IDs are invalid.',
             'songs.*.price.required' => 'Each song must have a price.',
+            'songs.*.is_midifile.required' => 'Each song must have a midifile.',
             'payment_method' => 'required|in:card,paypal',
-            'order_status' =>'nullable|in:pending,completed,failed'
+            'order_status' =>'nullable|in:pending,completed,failed',
+
         ];
     }
 }
