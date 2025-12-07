@@ -32,6 +32,14 @@
                     <td style="padding: 8px; font-weight: bold;">Social Link:</td>
                     <td style="padding: 8px; background: #f9f9f9;">{{ $data['social_link'] ?? 'N/A' }}</td>
                 </tr>
+                 <tr>
+                    <td style="padding: 8px; font-weight: bold;">Demo Link:</td>
+                    <td style="padding: 8px; background: #f9f9f9;">{{ $data['submit_demo'] ?? 'N/A' }}</td>
+                </tr>
+                 <tr>
+                    <td style="padding: 8px; font-weight: bold;">Referral:</td>
+                    <td style="padding: 8px; background: #f9f9f9;">{{ $data['referral'] ?? 'N/A' }}</td>
+                </tr>
                 <tr>
                     <td style="padding: 8px; font-weight: bold;">About:</td>
                     <td style="padding: 8px; background: #f9f9f9;">{{ $data['about'] ?? 'N/A' }}</td>
@@ -52,18 +60,6 @@
                     <td style="padding: 8px; background: #f9f9f9;">{{ $data['other_genre'] }}</td>
                 </tr>
                 @endif
-                <tr>
-                    <td style="padding: 8px; font-weight: bold;">File Uploaded:</td>
-                    <td style="padding: 8px; background: #f9f9f9;">
-                        @if(!empty($data['file']))
-                            <a href="{{ $data['file'] }}" target="_blank" style="color: #4A90E2;">
-                                Download / Listen
-                            </a>
-                        @else
-                            None
-                        @endif
-                    </td>
-                </tr>
 
             </table>
         </div>

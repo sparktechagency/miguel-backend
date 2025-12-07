@@ -28,7 +28,7 @@ class ApplyforArtistMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Applyfor Artist Mail',
+            subject: 'Apply for Artist Tunem',
         );
     }
 

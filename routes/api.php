@@ -118,7 +118,7 @@ Route::middleware(['user','auth:sanctum'])->controller(PaymentController::class)
     Route::controller(OrderController::class)->group(function () {
         Route::get('orders', 'orders')->middleware(['admin','auth:sanctum']);
         Route::get('user-orders', 'userOrders')->middleware(['user','auth:sanctum']);
-        Route::get('order-details/{order_id}', 'orderDetails')->middleware(['user','admin','auth:sanctum']);
+        Route::get('order-details/{order_id}', 'orderDetails')->middleware(['user','auth:sanctum']);
         Route::post('create-order', 'createOrder')->middleware(['user','auth:sanctum']);
         Route::post('custom-order/{artist_id}', 'customOrder')->middleware(['user','auth:sanctum']);
     });
