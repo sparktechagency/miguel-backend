@@ -112,73 +112,112 @@ class SongController extends Controller
             $this->sendError("An error occurred: ".$e->getMessage(),[],500);
         }
     }
-    public function createSong(SongRequest $songRequest)
+    public function createSong(SongRequest $request)
     {
         try {
-            $validated = $songRequest->validated();
-            if ($songRequest->hasFile('song')) {
-                $file = $songRequest->file('song');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/songs', $fileName, 'public');
-                $validated['song'] = 'storage/' . $path;
+            $validated = $request->validated();
+
+            // Fields that allow multiple files and should be stored as JSON arrays
+            $multiFileFields = [
+                'midi_file' => 'uploads/midi_files',
+                'web_vocals' => 'uploads/web_vocals',
+                'dry_vocals' => 'uploads/dry_vocals',
+            ];
+
+            foreach ($multiFileFields as $field => $folder) {
+                if ($request->hasFile($field)) {
+                    $files = $request->file($field);
+                    $filePaths = [];
+
+                    // Ensure it's an array even if a single file is uploaded
+                    if (!is_array($files)) {
+                        $files = [$files];
+                    }
+
+                    foreach ($files as $file) {
+                        $fileName = time() . '_' . $field . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs($folder, $fileName, 'public');
+                        $filePaths[] = 'storage/' . $path;
+                    }
+
+                    // Store paths as JSON
+                    $validated[$field] = json_encode($filePaths);
+                }
             }
-            if ($songRequest->hasFile('song_poster')) {
-                $file = $songRequest->file('song_poster');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/song_posters', $fileName, 'public');
-                $validated['song_poster'] = 'storage/' . $path;
+
+            // Single file fields
+            $singleFileFields = [
+                'song' => 'uploads/songs',
+                'song_poster' => 'uploads/song_posters',
+                'lyrics' => 'uploads/lyrics_files',
+            ];
+
+            foreach ($singleFileFields as $field => $folder) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $fileName = time() . '_' . $field . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs($folder, $fileName, 'public');
+                    $validated[$field] = 'storage/' . $path;
+                }
             }
-             if ($songRequest->hasFile('midi_file')) {
-                $file = $songRequest->file('midi_file');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/midi_files', $fileName, 'public');
-                $validated['midi_file'] = 'storage/' . $path;
-            }
+
             $song = Song::create($validated);
-            return $this->sendResponse($song,'Song created successfully.');
+
+            return $this->sendResponse($song, 'Song created successfully.');
         } catch (Exception $e) {
             return $this->sendError("An error occurred: " . $e->getMessage(), [], 500);
         }
     }
-    public function updateSong(SongRequest $songRequest, $songId)
+
+   public function updateSong(SongRequest $request, $songId)
     {
-        try{
+        try {;
             $song = Song::findOrFail($songId);
-            $validated = $songRequest->validated();
-            if ($songRequest->hasFile('song')) {
-                $file = $songRequest->file('song');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/songs', $fileName, 'public');
-                $validated['song'] = 'storage/' . $path;
-
-                if ($song->song) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $song->song));
+           if(!$song){
+            return $this->sendError("Song not found.");
+           }
+            $validated = $request->validated();
+            $multiFileFields = [
+                'midi_file'  => 'uploads/midi_files',
+                'web_vocals' => 'uploads/web_vocals',
+                'dry_vocals' => 'uploads/dry_vocals',
+            ];
+            foreach ($multiFileFields as $field => $folder) {
+                if ($request->hasFile($field)) {
+                    if (!empty($song->$field)) {
+                        foreach (json_decode($song->$field, true) as $oldPath) {
+                            Storage::disk('public')->delete(str_replace('storage/', '', $oldPath));
+                        }
+                    }
+                    $paths = [];
+                    foreach ($request->file($field) as $file) {
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs($folder, $fileName, 'public');
+                        $paths[] = 'storage/' . $path;
+                    }
+                    $validated[$field] = json_encode($paths);
                 }
             }
-            if ($songRequest->hasFile('song_poster')) {
-                $file = $songRequest->file('song_poster');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/song_posters', $fileName, 'public');
-                $validated['song_poster'] = 'storage/' . $path;
-
-                if($song->song_poster){
-                    Storage::disk('public')->delete(str_replace('storage/', '', $song->song_poster));
-                }
-            }
-            if ($songRequest->hasFile('midi_file')) {
-                $file = $songRequest->file('midi_file');
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/midi_files', $fileName, 'public');
-                $validated['midi_file'] = 'storage/' . $path;
-
-                if($song->midi_file){
-                    Storage::disk('public')->delete(str_replace('storage/', '', $song->song_poster));
+            $singleFileFields = [
+                'song' => 'uploads/songs',
+                'song_poster' => 'uploads/song_posters',
+                'lyrics' => 'uploads/lyrics_files', // PDF
+            ];
+            foreach ($singleFileFields as $field => $folder) {
+                if ($request->hasFile($field)) {
+                    if (!empty($song->$field)) {
+                        Storage::disk('public')->delete(str_replace('storage/', '', $song->$field));
+                    }
+                    $file = $request->file($field);
+                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs($folder, $fileName, 'public');
+                    $validated[$field] = 'storage/' . $path;
                 }
             }
             $song->update($validated);
-            return $this->sendResponse( $song, 'Song updated successfully.');
-        }catch(Exception $e){
-            $this->sendError("An error occurrd: ".$e->getMessage(),[],500);
+            return $this->sendResponse($song, 'Song updated successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('An error occurred: ' . $e->getMessage(),[],500);
         }
     }
     public function published(Request $request, $songId)

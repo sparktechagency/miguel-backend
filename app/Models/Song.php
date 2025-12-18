@@ -22,7 +22,17 @@ class Song extends Model
         'is_wishlisted',
         'views',
         'is_topsong',
-        'midi_file'
+        'midi_file',
+        'dry_vocals',
+        'web_vocals',
+        'lyrics'
+    ];
+    protected $casts = [
+        'midi_file'  => 'array',
+        'web_vocals' => 'array',
+        'dry_vocals' => 'array',
+        'is_published' => 'boolean',
+        'is_topsong' => 'boolean',
     ];
 
     public function artist() {

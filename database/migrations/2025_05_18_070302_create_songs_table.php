@@ -16,7 +16,11 @@ return new class extends Migration
             $table->string('title');
             $table->string('song_poster');
             $table->string('song');
-            $table->string('midi_file')->nullable();
+            $table->json('midi_file')->nullable();
+            $table->json('web_vocals')->nullable();
+            $table->json('dry_vocals')->nullable();
+            $table->string('lyrics')->nullable();
+            $table->string('')->nullable();
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
             $table->foreignId('key_id')->constrained()->onDelete('cascade');
