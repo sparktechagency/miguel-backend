@@ -25,7 +25,8 @@ class Song extends Model
         'midi_file',
         'dry_vocals',
         'web_vocals',
-        'lyrics'
+        'lyrics',
+        'value',
     ];
     protected $casts = [
         'midi_file'  => 'array',

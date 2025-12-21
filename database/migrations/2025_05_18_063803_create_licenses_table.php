@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('licenses', function (Blueprint $table) {
             $table->id();
             $table->string('name',255)->unique();
+            $table->integer('value')->default(0);
             $table->timestamps();
         });
     }

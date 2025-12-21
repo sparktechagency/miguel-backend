@@ -18,6 +18,8 @@ class SongController extends Controller
             $perPage = $request->get('per_page', 15);
 
             $query = Song::where('is_published', true)
+                 ->where('price', '>', 0)
+                 ->where('value', '>', 0)
                 ->with(['artist', 'genre', 'key', 'license', 'type']);
 
             // Apply filters
@@ -162,6 +164,8 @@ class SongController extends Controller
             }
 
             $song = Song::create($validated);
+            $song->value = $song->license->value ?? 0;
+            $song->save();
 
             return $this->sendResponse($song, 'Song created successfully.');
         } catch (Exception $e) {

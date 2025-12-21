@@ -7,6 +7,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Artist;
 use App\Models\Order;
 use App\Models\OrderDetails;
+use App\Models\Song;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Notifications\PurchageNotification;
@@ -19,6 +20,18 @@ class OrderController extends Controller
 {
     public function createOrder(OrderRequest $orderRequest)
     {
+        $firstSongData = $orderRequest->songs[0] ?? null;
+        if (!$firstSongData) {
+            return $this->sendError('No songs provided.');
+        }
+        $firstSong = Song::with('license')->find($firstSongData['song_id']);
+        if (!$firstSong) {
+            return $this->sendError('The song is unavailable.');
+        }
+        $restrictedLicenses = ['Limited', 'Premium', 'Exclusive'];
+        if (in_array($firstSong->license->name, $restrictedLicenses) && $firstSong->value <= 0) {
+            return $this->sendError('The song is unavailable.');
+        }
         try {
             DB::beginTransaction();
                 $totalAmount = collect($orderRequest->songs)->sum('price');
@@ -36,6 +49,11 @@ class OrderController extends Controller
                         'total' => $totalAmount,
                         'is_midifile' => $song['is_midifile'],
                     ]);
+
+                    $song = Song::find($song['song_id']);
+                    if ($song && $song->value > 0) {
+                        $song->decrement('value');
+                    }
                 }
                 $transactionStatus = $order->status === 'completed' ? 'success' : 'pending';
                 $transaction = Transaction::create([
@@ -45,13 +63,11 @@ class OrderController extends Controller
                     'status' => $transactionStatus ?? 'failed',
                     'payment_method' => $orderRequest->payment_method,
                 ]);
-
                 $admin = User::where('role', 'ADMIN')->first();
                 if ($admin) {
                     $admin->notify(new PurchageNotification($order,$admin));
                 }
             DB::commit();
-
             return $this->sendResponse([
                 'order' => $order,
                 'transaction' => $transaction,
