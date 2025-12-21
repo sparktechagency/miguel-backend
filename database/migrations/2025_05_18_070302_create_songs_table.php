@@ -20,7 +20,6 @@ return new class extends Migration
             $table->json('web_vocals')->nullable();
             $table->json('dry_vocals')->nullable();
             $table->string('lyrics')->nullable();
-            $table->string('')->nullable();
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
             $table->foreignId('key_id')->constrained()->onDelete('cascade');
