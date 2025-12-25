@@ -91,13 +91,16 @@ class AuthController extends Controller
             $validated = $loginRequest->validated();
             $user = User::where('email', $validated['email'])->first();
             if (!$user) {
-                return $this->sendError('Invalid email or password.', [], 401);
+                return $this->sendError('Invalid email or password.');
             }
             if (!Hash::check($validated['password'], $user->password)) {
-                return $this->sendError('Invalid email or password.', [], 401);
+                return $this->sendError('Invalid email or password.');
             }
             if (is_null($user->otp_verified_at)) {
-                return $this->sendError('Please verify your OTP before logging in.', [], 403);
+                return $this->sendError('Please verify your OTP before logging in.');
+            }
+            if ($user->is_banned == true) {
+                return $this->sendError('You are banned. Kindly contact admin.');
             }
             $token = $user->createToken('auth_token')->plainTextToken;
             return $this->sendResponse([
